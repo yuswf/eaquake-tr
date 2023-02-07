@@ -5,6 +5,15 @@ const cors = require('cors');
 app.use(cors());
 app.options('*', cors());
 
+function dateToTimestamp(date, time) {
+    const [year, month, day] = date.split('.');
+    const [hour, minute, second] = time.split(':');
+
+    const d = new Date(`${year}-${month}-${day}`);
+
+    return d.getTime() + ((hour - 3) * 60 * 60 * 1000) + (minute * 60 * 1000) + (second * 1000);
+}
+
 function clean(arr) {
     return arr.slice(0, arr.length - 1).filter((item) => item !== '-.-');
 }
@@ -24,6 +33,7 @@ app.get('/all', (req, res) => {
                     const earthquake = clean(earthquakes[i].split(/\s+/g).filter((item) => item !== '' && item !== '.'));
 
                     const obj = {
+                        milliseconds: dateToTimestamp(earthquake[0], earthquake[1]),
                         date: earthquake[0],
                         time: earthquake[1],
                         latitude: earthquake[2],
@@ -70,6 +80,7 @@ app.get('/latest', (req, res) => {
                 const arr = [];
 
                 const obj = {
+                    milliseconds: dateToTimestamp(earthquake[0], earthquake[1]),
                     date: earthquake[0],
                     time: earthquake[1],
                     latitude: earthquake[2],
