@@ -38,6 +38,13 @@ app.get('/all', (req, res) => {
                     arr.push(obj);
                 }
 
+                if (req.query.limit && req.query.limit > 0 && !isNaN(req.query.limit)) {
+                    return res.status(200).json({
+                        status: 200,
+                        result: arr.slice(0, req.query.limit)
+                    });
+                }
+
                 return res.status(200).json({
                     status: 200,
                     result: arr
@@ -95,7 +102,10 @@ app.get('/', (req, res) => {
         endpoints: [
             {
                 endpoint: '/all',
-                description: 'Returns the last 500 earthquakes.'
+                description: 'Returns the last 500 earthquakes.',
+                query: {
+                    limit: 'Returns the last n earthquakes. (n is a number)'
+                }
             },
             {
                 endpoint: '/latest',
