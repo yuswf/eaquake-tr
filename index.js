@@ -5,6 +5,10 @@ const cors = require('cors');
 app.use(cors());
 app.options('*', cors());
 
+function cleanLocation(text) {
+    return text.replace(/undefined/g, '').trim();
+}
+
 function dateToTimestamp(date, time) {
     const [year, month, day] = date.split('.');
     const [hour, minute, second] = time.split(':');
@@ -44,9 +48,9 @@ app.get('/all', (req, res) => {
 
                     if (earthquake.length > 8) {
                         obj['moment'] = earthquake[6];
-                        obj['location'] = earthquake[7] + ' ' + earthquake[8];
+                        obj['location'] = cleanLocation(earthquake[7] + ' ' + earthquake[8]);
                     } else {
-                        obj['location'] = earthquake[6] + ' ' + earthquake[7];
+                        obj['location'] = cleanLocation(earthquake[6] + ' ' + earthquake[7]);
                     }
 
                     arr.push(obj);
@@ -91,9 +95,9 @@ app.get('/latest', (req, res) => {
 
                 if (earthquake.length > 8) {
                     obj['moment'] = earthquake[6];
-                    obj['location'] = earthquake[7] + ' ' + earthquake[8];
+                    obj['location'] = cleanLocation(earthquake[7] + ' ' + earthquake[8]);
                 } else {
-                    obj['location'] = earthquake[6] + ' ' + earthquake[7];
+                    obj['location'] = cleanLocation(earthquake[6] + ' ' + earthquake[7]);
                 }
 
                 arr.push(obj);
