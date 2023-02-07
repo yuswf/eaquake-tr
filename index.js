@@ -33,7 +33,7 @@ app.get('/all', (req, res) => {
                     const earthquake = clean(earthquakes[i].split(/\s+/g).filter((item) => item !== '' && item !== '.'));
 
                     const obj = {
-                        milliseconds: dateToTimestamp(earthquake[0], earthquake[1]),
+                        timestamp: dateToTimestamp(earthquake[0], earthquake[1]),
                         date: earthquake[0],
                         time: earthquake[1],
                         latitude: earthquake[2],
@@ -80,7 +80,7 @@ app.get('/latest', (req, res) => {
                 const arr = [];
 
                 const obj = {
-                    milliseconds: dateToTimestamp(earthquake[0], earthquake[1]),
+                    timestamp: dateToTimestamp(earthquake[0], earthquake[1]),
                     date: earthquake[0],
                     time: earthquake[1],
                     latitude: earthquake[2],
