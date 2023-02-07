@@ -2,11 +2,8 @@ const app = require('express')();
 const {get} = require('axios');
 const cors = require('cors');
 
-app.use(cors(
-    {
-        origin: '*'
-    }
-));
+app.use(cors());
+app.options('*', cors());
 
 function clean(arr) {
     return arr.slice(0, arr.length - 1).filter((item) => item !== '-.-');
