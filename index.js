@@ -409,6 +409,7 @@ app.get('/average', (req, res) => {
                 return res.status(200).json({
                     status: 200,
                     ping: r,
+                    alert: 'The values may change because Kandilli observatory can update the data.',
                     message: 'Average depth, magnitude and base of the last 500 earthquakes.',
                     result: json,
                 });
