@@ -53,6 +53,8 @@ function clean(arr) {
 }
 
 app.get('/all', (req, res) => {
+    let t = new Date().getTime();
+
     get('http://www.koeri.boun.edu.tr/scripts/lst7.asp')
         .then((response) => {
             const regex = /--------------([\s\S]*?)<\/pre>/;
@@ -121,19 +123,28 @@ app.get('/all', (req, res) => {
                 }
 
                 if (req.query.limit && req.query.limit > 0 && !isNaN(req.query.limit)) {
+                    let r = new Date().getTime() - t;
+
                     return res.status(200).json({
                         status: 200,
+                        ping: r,
                         result: arr.slice(0, req.query.limit)
                     });
                 } else if (req.query.get && req.query.get > 0 && !isNaN(req.query.get)) {
+                    let r = new Date().getTime() - t;
+
                     return res.status(200).json({
                         status: 200,
+                        ping: r,
                         result: arr[req.query.get - 1]
                     });
                 }
 
+                let r = new Date().getTime() - t;
+
                 return res.status(200).json({
                     status: 200,
+                    ping: r,
                     result: arr
                 });
             }
@@ -141,6 +152,8 @@ app.get('/all', (req, res) => {
 });
 
 app.get('/latest', (req, res) => {
+    let t = new Date().getTime();
+
     get('http://www.koeri.boun.edu.tr/scripts/lst7.asp')
         .then((response) => {
             const regex = /--------------([\s\S]*?)<\/pre>/;
@@ -204,8 +217,11 @@ app.get('/latest', (req, res) => {
 
                 arr.push(obj);
 
+                let r = new Date().getTime() - t;
+
                 return res.status(200).json({
                     status: 200,
+                    ping: r,
                     result: arr
                 });
             }
@@ -213,6 +229,8 @@ app.get('/latest', (req, res) => {
 });
 
 app.get('/search', (req, res) => {
+    let t = new Date().getTime();
+
     get('http://www.koeri.boun.edu.tr/scripts/lst7.asp')
         .then((response) => {
             const regex = /--------------([\s\S]*?)<\/pre>/;
@@ -301,12 +319,17 @@ app.get('/search', (req, res) => {
                 if (arr.length === 0) {
                     return res.status(404).json({
                         status: 404,
+                        ping: 0,
                         message: 'No earthquakes found.'
                     });
                 }
 
+
+                let r = new Date().getTime() - t;
+
                 return res.status(200).json({
                     status: 200,
+                    ping: r,
                     result: arr
                 });
             }
@@ -320,6 +343,7 @@ app.listen(3000, () => {
 app.get('/', (req, res) => {
     res.status(200).json({
         status: 200,
+        ping: 0,
         message: 'Welcome to the Turkey Earthquake API!',
         endpoints: [
             {
