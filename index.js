@@ -394,11 +394,14 @@ app.get('/average', (req, res) => {
                     }
                 }
 
+                const eq = mode(arr);
+                const l = arr.filter((item) => item === eq).length;
+
                 const json = {
                     average_depth: (depths / earthquakes.length).toFixed(4),
                     average_magnitude: (magnitudes / earthquakes.length).toFixed(4),
-                    base: mode(arr),
-                    length: arr.filter((item) => item === mode(arr)).length,
+                    base: eq,
+                    length: l,
                 }
 
                 let r = new Date().getTime() - t;
