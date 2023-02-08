@@ -5,6 +5,12 @@ const cors = require('cors');
 app.use(cors());
 app.options('*', cors());
 
+function mode(arr) {
+    arr.sort((a, b) => arr.filter(v => v === a).length - arr.filter(v => v === b).length);
+
+    return arr.slice(arr.length - 2, arr.length - 1)[0];
+}
+
 function date(timestamp) {
     const x = timestamp.toString() + '000';
     const y = Number(x) + 3 * 60 * 60 * 1000;
@@ -336,7 +342,6 @@ app.get('/search', (req, res) => {
                     });
                 }
 
-
                 let r = new Date().getTime() - t;
 
                 return res.status(200).json({
@@ -344,6 +349,65 @@ app.get('/search', (req, res) => {
                     ping: r,
                     length: arr.length,
                     result: arr
+                });
+            }
+        });
+});
+
+app.get('/average', (req, res) => {
+    const t = new Date().getTime();
+
+    get('http://www.koeri.boun.edu.tr/scripts/lst7.asp')
+        .then((response) => {
+            const regex = /--------------([\s\S]*?)<\/pre>/;
+            const match = regex.exec(response.data);
+
+            if (match) {
+                const earthquakes = match[1].split('').slice(48, match[1].split('').length).join('').trim().split(/\n/g);
+
+                const arr = [];
+                let depths = 0;
+                let magnitudes = 0;
+
+                for (let i = 0; i < earthquakes.length; i++) {
+                    const earthquake = clean(earthquakes[i].split(/\s+/g).filter((item) => item !== '' && item !== '.'));
+
+                    depths += Number(earthquake[4]);
+                    magnitudes += Number(earthquake[5]);
+
+                    if (earthquake.length >= 8 && !isNaN(earthquake[6])) {
+                        const loc = cleanLocation(earthquake.slice(7, earthquake.length).join(' '));
+
+                        if (loc.includes('(')) {
+                            arr.push(loc.split('(')[1].split(')')[0]);
+                        } else {
+                            arr.push(loc);
+                        }
+                    } else {
+                        const loc = cleanLocation(earthquake.slice(6, earthquake.length).join(' '));
+
+                        if (loc.includes('(')) {
+                            arr.push(loc.split('(')[1].split(')')[0]);
+                        } else {
+                            arr.push(loc);
+                        }
+                    }
+                }
+
+                const json = {
+                    average_depth: (depths / earthquakes.length).toFixed(4),
+                    average_magnitude: (magnitudes / earthquakes.length).toFixed(4),
+                    base: mode(arr),
+                    length: arr.filter((item) => item === mode(arr)).length,
+                }
+
+                let r = new Date().getTime() - t;
+
+                return res.status(200).json({
+                    status: 200,
+                    ping: r,
+                    message: 'Average depth, magnitude and base of the last 500 earthquakes.',
+                    result: json,
                 });
             }
         });
@@ -381,6 +445,10 @@ app.get('/', (req, res) => {
             {
                 endpoint: '/latest',
                 description: 'Returns the latest earthquake.'
+            },
+            {
+                endpoint: '/average',
+                description: 'Returns the average depth, magnitude and base of the last 500 earthquakes.'
             }
         ]
     });
