@@ -8,7 +8,7 @@ app.options('*', cors());
 function date(timestamp) {
     const x = timestamp.toString() + '000';
 
-    return new Date(Number(x)).toLocaleTimeString('en-US', {
+    return new Date(Number(x)).toLocaleTimeString('tr-TR', {
         year: 'numeric',
         month: 'long',
         day: '2-digit',
