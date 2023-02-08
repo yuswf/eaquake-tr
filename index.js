@@ -7,8 +7,9 @@ app.options('*', cors());
 
 function date(timestamp) {
     const x = timestamp.toString() + '000';
+    const y = Number(x) + 3 * 60 * 60 * 1000;
 
-    return new Date(Number(x)).toLocaleTimeString('tr-TR', {
+    return new Date(y).toLocaleTimeString('tr-TR', {
         year: 'numeric',
         month: 'long',
         day: '2-digit',
@@ -21,8 +22,9 @@ function date(timestamp) {
 
 function dateEn(timestamp) {
     const x = timestamp.toString() + '000';
+    const y = Number(x) + 3 * 60 * 60 * 1000;
 
-    return new Date(Number(x)).toLocaleTimeString('en-US', {
+    return new Date(y).toLocaleTimeString('en-US', {
         year: 'numeric',
         month: 'long',
         day: '2-digit',
