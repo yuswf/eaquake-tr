@@ -314,6 +314,18 @@ app.get('/search', (req, res) => {
                     const h = req.query.hour.length > 1 ? req.query.hour : '0' + req.query.hour;
 
                     arr.push(...cleanedEarthquakes.filter((item) => item.time.split(':')[0] === h));
+                } else {
+                    return res.status(200).json({
+                        status: 200,
+                        ping: 0,
+                        query: {
+                            base: 'Returns earthquakes in the specified base.',
+                            magnitude: 'Returns earthquakes with the specified magnitude.',
+                            day: 'Returns earthquakes in the specified day.',
+                            month: 'Returns earthquakes in the specified month.',
+                            hour: 'Returns earthquakes in the specified hour.'
+                        }
+                    })
                 }
 
                 if (arr.length === 0) {
