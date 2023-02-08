@@ -330,6 +330,7 @@ app.get('/search', (req, res) => {
                 return res.status(200).json({
                     status: 200,
                     ping: r,
+                    length: arr.length,
                     result: arr
                 });
             }
