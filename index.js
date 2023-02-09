@@ -167,7 +167,7 @@ app.get('/all', (req, res) => {
                 });
             }
         });
-        }, 50)
+        }, 200)
 });
 
 app.get('/latest', (req, res) => {
@@ -246,7 +246,7 @@ app.get('/latest', (req, res) => {
                 });
             }
         });
-    }, 50);
+    }, 200);
 });
 
 app.get('/search', (req, res) => {
@@ -431,7 +431,7 @@ app.get('/average', (req, res) => {
                 });
             }
         });
-    }, 50);
+    }, 200);
 });
 
 app.listen(3000, () => {
