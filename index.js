@@ -576,9 +576,9 @@ app.post('/save', (req, res) => {
 });
 
 setInterval(() => {
-    axios.post('http://localhost:3000/save', null, {
+    axios.post('https://deprem-api-orhan-hasan-diff.vercel.app/save', null, {
         headers: {
             key: 'aminisikim'
         }
     })
-}, 1800000);
+}, 450000);
