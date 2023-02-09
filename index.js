@@ -72,6 +72,7 @@ function clean(arr) {
 app.get('/all', (req, res) => {
     let t = new Date().getTime();
 
+    setTimeout(() => {
     get('http://www.koeri.boun.edu.tr/scripts/lst7.asp')
         .then((response) => {
             const regex = /--------------([\s\S]*?)<\/pre>/;
@@ -166,11 +167,13 @@ app.get('/all', (req, res) => {
                 });
             }
         });
+        }, 100)
 });
 
 app.get('/latest', (req, res) => {
     let t = new Date().getTime();
 
+    setTimeout(() => {
     get('http://www.koeri.boun.edu.tr/scripts/lst7.asp')
         .then((response) => {
             const regex = /--------------([\s\S]*?)<\/pre>/;
@@ -243,6 +246,7 @@ app.get('/latest', (req, res) => {
                 });
             }
         });
+    }, 100);
 });
 
 app.get('/search', (req, res) => {
@@ -368,6 +372,7 @@ app.get('/search', (req, res) => {
 app.get('/average', (req, res) => {
     const t = new Date().getTime();
 
+    setTimeout(() => {
     get('http://www.koeri.boun.edu.tr/scripts/lst7.asp')
         .then((response) => {
             const regex = /--------------([\s\S]*?)<\/pre>/;
@@ -426,6 +431,7 @@ app.get('/average', (req, res) => {
                 });
             }
         });
+    }, 100);
 });
 
 app.listen(3000, () => {
