@@ -167,7 +167,7 @@ app.get('/all', (req, res) => {
                 });
             }
         });
-        }, 100)
+        }, 50)
 });
 
 app.get('/latest', (req, res) => {
@@ -246,7 +246,7 @@ app.get('/latest', (req, res) => {
                 });
             }
         });
-    }, 100);
+    }, 50);
 });
 
 app.get('/search', (req, res) => {
@@ -431,7 +431,7 @@ app.get('/average', (req, res) => {
                 });
             }
         });
-    }, 100);
+    }, 50);
 });
 
 app.listen(3000, () => {
@@ -580,11 +580,3 @@ app.post('/save', (req, res) => {
             }
         });
 });
-
-setInterval(() => {
-    axios.post('https://deprem-api-orhan-hasan-diff.vercel.app/save', null, {
-        headers: {
-            key: 'aminisikim'
-        }
-    })
-}, 450000);
