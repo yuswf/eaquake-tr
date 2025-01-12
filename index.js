@@ -1,73 +1,14 @@
 const app = require('express')();
 const {get} = require('axios');
 const cors = require('cors');
-const mongoose = require('mongoose');
 
-const MONGO_URI = 'mongodb+srv://eq:31@eq.5mzvjz2.mongodb.net/?retryWrites=true&w=majority';
+// Helpers
+const {clean, cleanLocation, mode} = require('./utils/clean');
+const {date, dateToTimestamp} = require('./utils/date');
 
-mongoose.set('strictQuery', false);
-mongoose.connect(MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-    .then(() => console.log('MongoDB connected.'))
-    .catch((err) => console.log(err));
-
+// Middlewares
 app.use(cors());
 app.options('*', cors());
-
-function mode(arr) {
-    arr.sort((a, b) => arr.filter(v => v === a).length - arr.filter(v => v === b).length);
-
-    return arr.slice(arr.length - 2, arr.length - 1)[0];
-}
-
-function date(timestamp) {
-    const x = timestamp.toString() + '000';
-    const y = Number(x) + 3 * 60 * 60 * 1000;
-
-    return new Date(y).toLocaleTimeString('tr-TR', {
-        year: 'numeric',
-        month: 'long',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-    });
-}
-
-function dateEn(timestamp) {
-    const x = timestamp.toString() + '000';
-    const y = Number(x) + 3 * 60 * 60 * 1000;
-
-    return new Date(y).toLocaleTimeString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-    });
-}
-
-function cleanLocation(text) {
-    return text.replace(/undefined/g, '').trim();
-}
-
-function dateToTimestamp(date, time) {
-    const [year, month, day] = date.split('.');
-    const [hour, minute, second] = time.split(':');
-
-    const d = new Date(`${year}-${month}-${day}`);
-
-    return (d.getTime() + ((hour - 3) * 60 * 60 * 1000) + (minute * 60 * 1000) + (second * 1000)) / 1000;
-}
-
-function clean(arr) {
-    return arr.slice(0, arr.length - 1).filter((item) => item !== '-.-');
-}
 
 app.get('/all', (req, res) => {
     let t = new Date().getTime();
@@ -92,7 +33,7 @@ app.get('/all', (req, res) => {
                         date: earthquake[0],
                         time: earthquake[1],
                         fullDate: `${earthquake[0]} ${earthquake[1]}`,
-                        longDate: date(dateToTimestamp(earthquake[0], earthquake[1])) + '^' + dateEn(dateToTimestamp(earthquake[0], earthquake[1])),
+                        longDate: date(dateToTimestamp(earthquake[0], earthquake[1]), 'tr-TR') + '^' + date(dateToTimestamp(earthquake[0], earthquake[1])),
                         latitude: Number(earthquake[2]),
                         longitude: Number(earthquake[3]),
                         coordinates: [
@@ -190,7 +131,7 @@ app.get('/latest', (req, res) => {
                     date: earthquake[0],
                     time: earthquake[1],
                     fullDate: `${earthquake[0]} ${earthquake[1]}`,
-                    longDate: date(dateToTimestamp(earthquake[0], earthquake[1])) + '^' + dateEn(dateToTimestamp(earthquake[0], earthquake[1])),
+                    longDate: date(dateToTimestamp(earthquake[0], earthquake[1]), 'tr-TR') + '^' + date(dateToTimestamp(earthquake[0], earthquake[1])),
                     latitude: Number(earthquake[2]),
                     longitude: Number(earthquake[3]),
                     coordinates: [
@@ -271,7 +212,7 @@ app.get('/search', (req, res) => {
                         date: earthquake[0],
                         time: earthquake[1],
                         fullDate: `${earthquake[0]} ${earthquake[1]}`,
-                        longDate: date(dateToTimestamp(earthquake[0], earthquake[1])) + '^' + dateEn(dateToTimestamp(earthquake[0], earthquake[1])),
+                        longDate: date(dateToTimestamp(earthquake[0], earthquake[1]), 'tr-TR') + '^' + date(dateToTimestamp(earthquake[0], earthquake[1])),
                         latitude: Number(earthquake[2]),
                         longitude: Number(earthquake[3]),
                         coordinates: [
@@ -434,10 +375,6 @@ app.get('/average', (req, res) => {
     }, 200);
 });
 
-app.listen(3000, () => {
-    console.log('Listening on port 3000.');
-});
-
 app.get('/', (req, res) => {
     res.status(200).json({
         status: 200,
@@ -475,108 +412,6 @@ app.get('/', (req, res) => {
     });
 });
 
-const Earthquake = require('./models/Earthquake');
-const axios = require("axios");
-
-app.post('/save', (req, res) => {
-    if (req.headers['key'] !== 'aminisikim') return;
-
-    get('http://www.koeri.boun.edu.tr/scripts/lst7.asp')
-        .then((response) => {
-            const regex = /--------------([\s\S]*?)<\/pre>/;
-            const match = regex.exec(response.data);
-
-            if (match) {
-                const earthquakes = match[1].split('').slice(48, match[1].split('').length).join('').trim().split(/\n/g);
-
-                const arr = [];
-
-                for (let i = 0; i < earthquakes.length; i++) {
-                    const earthquake = clean(earthquakes[i].split(/\s+/g).filter((item) => item !== '' && item !== '.'));
-
-                    const obj = {
-                        id: i + 1,
-                        timestamp: dateToTimestamp(earthquake[0], earthquake[1]),
-                        date: earthquake[0],
-                        time: earthquake[1],
-                        fullDate: `${earthquake[0]} ${earthquake[1]}`,
-                        longDate: date(dateToTimestamp(earthquake[0], earthquake[1])) + '^' + dateEn(dateToTimestamp(earthquake[0], earthquake[1])),
-                        latitude: Number(earthquake[2]),
-                        longitude: Number(earthquake[3]),
-                        coordinates: [
-                            Number(earthquake[2]),
-                            Number(earthquake[3])
-                        ],
-                        depth: Number(earthquake[4]),
-                        magnitude: Number(earthquake[5]),
-                    }
-
-                    if (earthquake.length >= 8 && !isNaN(earthquake[6])) {
-                        obj['moment'] = Number(earthquake[6]);
-
-                        const loc = cleanLocation(earthquake.slice(7, earthquake.length).join(' '));
-                        const regex = /([\s\S]*?)REVIZE01/;
-
-                        if (regex.test(loc)) {
-                            obj['location'] = cleanLocation(regex.exec(loc)[1].trim());
-                        } else {
-                            obj['location'] = cleanLocation(earthquake.slice(7, earthquake.length).join(' '));
-                        }
-
-                        if (loc.includes('(')) {
-                            obj['base'] = loc.split('(')[1].split(')')[0];
-                        } else {
-                            obj['base'] = loc;
-                        }
-                    } else {
-                        const loc = cleanLocation(earthquake.slice(6, earthquake.length).join(' '));
-                        const regex = /([\s\S]*?)REVIZE01/;
-
-                        if (regex.test(loc)) {
-                            obj['location'] = cleanLocation(regex.exec(loc)[1].trim());
-                        } else {
-                            obj['location'] = cleanLocation(earthquake.slice(6, earthquake.length).join(' '));
-                        }
-
-                        if (loc.includes('(')) {
-                            obj['base'] = loc.split('(')[1].split(')')[0];
-                        } else {
-                            obj['base'] = loc;
-                        }
-                    }
-
-                    arr.push(obj);
-                }
-
-                Earthquake.find({})
-                    .then((data) => {
-                        const last = data[data.length - 1];
-                        if (arr.filter((item) => item.longDate === last.longDate && item.latitude === last.latitude && item.longitude === last.longitude && item.timestamp === last.timestamp).length === 0) return res.send('yok')
-                        const filtered = arr.slice(0, arr.filter((item) => item.longDate === last.longDate && item.latitude === last.latitude && item.longitude === last.longitude && item.timestamp === last.timestamp)[0].id - 1);
-
-                        for (let i = filtered.length - 1; i >= 0; i--) {
-                            const newEq = new Earthquake({
-                                timestamp: filtered[i].timestamp,
-                                date: filtered[i].date,
-                                time: filtered[i].time,
-                                fullDate: filtered[i].fullDate,
-                                longDate: filtered[i].longDate,
-                                latitude: filtered[i].latitude,
-                                longitude: filtered[i].longitude,
-                                coordinates: filtered[i].coordinates,
-                                depth: filtered[i].depth,
-                                magnitude: filtered[i].magnitude,
-                                moment: filtered[i].moment,
-                                location: filtered[i].location,
-                                base: filtered[i].base,
-                                createdAt: new Date(),
-                            })
-
-                            newEq.save();
-                        }
-                    });
-
-                return res.send('tm bak')
-            }
-        });
+app.listen(3000, () => {
+    console.log('Listening on port 3000.');
 });
